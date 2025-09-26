@@ -335,6 +335,88 @@ router.post('/verify-otp', authLimiter, validate(otpSchema), async (req, res) =>
   }
 });
 
+// Send OTP for login
+router.post('/send-otp', otpLimiter, async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is required'
+      });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ phoneNumber: phone });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found with this phone number'
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is suspended'
+      });
+    }
+
+    // Generate and send OTP
+    const otp = OTPService.generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    try {
+      await OTPService.sendPhoneOTP(phone, otp);
+
+      user.phoneOTP = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: 'OTP sent successfully',
+        data: {
+          requiresOTP: true,
+          expiresIn: 600, // 10 minutes in seconds
+          otp: process.env.NODE_ENV === 'development' ? otp : undefined // Only show OTP in development
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send OTP:', error.message);
+
+      // In development, still save OTP even if sending fails
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📱 DEV MODE - OTP for ${phone}: ${otp}`);
+        user.phoneOTP = otp;
+        user.otpExpires = otpExpires;
+        await user.save();
+
+        return res.status(200).json({
+          success: true,
+          message: 'OTP sent successfully (development mode)',
+          data: {
+            requiresOTP: true,
+            expiresIn: 600,
+            otp: otp // Show OTP in development
+          }
+        });
+      }
+
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send OTP',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // Resend OTP
 router.post('/resend-otp', otpLimiter, async (req, res) => {
   try {
