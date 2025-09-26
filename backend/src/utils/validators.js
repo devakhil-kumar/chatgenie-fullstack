@@ -11,7 +11,7 @@ export const registerSchema = Joi.object({
     then: Joi.optional(),
     otherwise: Joi.required()
   }),
-  referralCode: Joi.string().length(6).uppercase().optional()
+  referralCode: Joi.string().length(6).uppercase().optional().allow('', null)
 }).or('phoneNumber', 'email');
 
 export const loginSchema = Joi.object({
