@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema({
   referralCode: {
     type: String,
     unique: true,
-    required: true
+    required: false // Auto-generated in pre-save hook
   },
   referredBy: {
     type: mongoose.Schema.Types.ObjectId,

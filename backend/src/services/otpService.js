@@ -24,16 +24,18 @@ export class OTPService {
 
   static async sendPhoneOTP(phoneNumber, otp) {
     try {
-      // if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
-      //   console.log(`📱 OTP for ${phoneNumber}: ${otp} (Twilio not configured)`);
+      // Development mode - just log the OTP
+      if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+        console.log(`📱 OTP for ${phoneNumber}: ${otp} (Twilio not configured)`);
         return { success: true, message: 'OTP sent (development mode)' };
-      // }
+      }
 
-      // const message = await twilioClient.messages.create({
-      //   body: `Your ChatGenie verification code is: ${otp}. This code will expire in 10 minutes.`,
-      //   from: process.env.TWILIO_PHONE_NUMBER,
-      //   to: phoneNumber
-      // });
+      // Production mode - actually send SMS
+      const message = await twilioClient.messages.create({
+        body: `Your ChatGenie verification code is: ${otp}. This code will expire in 10 minutes.`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: phoneNumber
+      });
 
       console.log(`📱 SMS sent to ${phoneNumber}, SID: ${message.sid}`);
       return {
@@ -77,12 +79,12 @@ export class OTPService {
       };
 
       // const info = await emailTransporter.sendMail(mailOptions);
-      console.log(`📧 Email sent to ${email}, MessageID: ${info.messageId}`);
+      // console.log(`📧 Email sent to ${email}, MessageID: ${info.messageId}`);
 
       return {
         success: true,
         message: 'OTP sent successfully',
-        messageId: info.messageId
+        messageId: 'dev_mode'
       };
     } catch (error) {
       console.error('Error sending email OTP:', error);
@@ -140,12 +142,12 @@ export class OTPService {
       };
 
       // const info = await emailTransporter.sendMail(mailOptions);
-      console.log(`📧 Welcome email sent to ${email}, MessageID: ${info.messageId}`);
+      // console.log(`📧 Welcome email sent to ${email}, MessageID: ${info.messageId}`);
 
       return {
         success: true,
         message: 'Welcome email sent successfully',
-        messageId: info.messageId
+        messageId: 'dev_mode'
       };
     } catch (error) {
       console.error('Error sending welcome email:', error);
