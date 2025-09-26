@@ -11,11 +11,11 @@ export const registerSchema = Joi.object({
     then: Joi.optional(),
     otherwise: Joi.required()
   }),
-  referralCode: Joi.string().length(6).uppercase().optional().allow('', null)
+  // referralCode: Joi.string().length(6).uppercase().optional().allow('', null)
 }).or('phoneNumber', 'email');
 
 export const loginSchema = Joi.object({
-  identifier: Joi.string().required(), // phone or email
+  identifier: Joi.string().required(), // phone or email  
   password: Joi.string().min(6).optional(),
   loginType: Joi.string().valid('phone', 'email', 'otp').required()
 });
