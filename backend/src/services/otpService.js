@@ -24,25 +24,22 @@ export class OTPService {
 
   static async sendPhoneOTP(phoneNumber, otp) {
     try {
-      // Development mode - just log the OTP
-      if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
-        console.log(`📱 OTP for ${phoneNumber}: ${otp} (Twilio not configured)`);
-        return { success: true, message: 'OTP sent (development mode)' };
-      }
+      // Development mode - just log the OTP to console
+      console.log(`📱 OTP for ${phoneNumber}: ${otp} (Development Mode - Check Console)`);
+      return { success: true, message: 'OTP sent (development mode)' };
 
-      // Production mode - actually send SMS
-      const message = await twilioClient.messages.create({
-        body: `Your ChatGenie verification code is: ${otp}. This code will expire in 10 minutes.`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: phoneNumber
-      });
-
-      console.log(`📱 SMS sent to ${phoneNumber}, SID: ${message.sid}`);
-      return {
-        success: true,
-        message: 'OTP sent successfully',
-        messageSid: message.sid
-      };
+      // Production mode - Twilio SMS (commented out for development)
+      // const message = await twilioClient.messages.create({
+      //   body: `Your ChatGenie verification code is: ${otp}. This code will expire in 10 minutes.`,
+      //   from: process.env.TWILIO_PHONE_NUMBER,
+      //   to: phoneNumber
+      // });
+      // console.log(`📱 SMS sent to ${phoneNumber}, SID: ${message.sid}`);
+      // return {
+      //   success: true,
+      //   message: 'OTP sent successfully',
+      //   messageSid: message.sid
+      // };
     } catch (error) {
       console.error('Error sending SMS OTP:', error);
       throw new Error('Failed to send SMS OTP');
@@ -51,41 +48,45 @@ export class OTPService {
 
   static async sendEmailOTP(email, otp) {
     try {
-      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.log(`📧 OTP for ${email}: ${otp} (Email service not configured)`);
-        return { success: true, message: 'OTP sent (development mode)' };
-      }
+      // Development mode - just log the OTP to console
+      console.log(`📧 OTP for ${email}: ${otp} (Development Mode - Check Console)`);
+      return { success: true, message: 'OTP sent (development mode)' };
 
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'ChatGenie - Verification Code',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">ChatGenie Verification</h2>
-            <p>Your verification code is:</p>
-            <div style="background: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
-              <h1 style="font-size: 32px; color: #1f2937; margin: 0; letter-spacing: 5px;">${otp}</h1>
-            </div>
-            <p>This code will expire in 10 minutes.</p>
-            <p>If you didn't request this code, please ignore this email.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-            <p style="color: #6b7280; font-size: 14px;">
-              Best regards,<br>
-              The ChatGenie Team
-            </p>
-          </div>
-        `
-      };
+      // Production mode - Email service (commented out for development)
+      // if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      //   console.log(`📧 OTP for ${email}: ${otp} (Email service not configured)`);
+      //   return { success: true, message: 'OTP sent (development mode)' };
+      // }
 
+      // Email sending functionality commented out for development
+      // const mailOptions = {
+      //   from: process.env.EMAIL_USER,
+      //   to: email,
+      //   subject: 'ChatGenie - Verification Code',
+      //   html: `
+      //     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      //       <h2 style="color: #2563eb;">ChatGenie Verification</h2>
+      //       <p>Your verification code is:</p>
+      //       <div style="background: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
+      //         <h1 style="font-size: 32px; color: #1f2937; margin: 0; letter-spacing: 5px;">${otp}</h1>
+      //       </div>
+      //       <p>This code will expire in 10 minutes.</p>
+      //       <p>If you didn't request this code, please ignore this email.</p>
+      //       <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+      //       <p style="color: #6b7280; font-size: 14px;">
+      //         Best regards,<br>
+      //         The ChatGenie Team
+      //       </p>
+      //     </div>
+      //   `
+      // };
       // const info = await emailTransporter.sendMail(mailOptions);
       // console.log(`📧 Email sent to ${email}, MessageID: ${info.messageId}`);
-
-      return {
-        success: true,
-        message: 'OTP sent successfully',
-        messageId: 'dev_mode'
-      };
+      // return {
+      //   success: true,
+      //   message: 'OTP sent successfully',
+      //   messageId: info.messageId
+      // };
     } catch (error) {
       console.error('Error sending email OTP:', error);
       throw new Error('Failed to send email OTP');
